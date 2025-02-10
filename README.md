@@ -32,6 +32,7 @@ Equities Fund.
 - When investing the amount must be greater than zero
 - Customers should be able to fetch their investment details: Fund name, Amount invested, Investment date
 - There should be an API to list all available funds.
+- There should be a seperation of business rules for retail and employee investments
 - Authentication is required using JWT tokens.
 
 ## Assumptions
@@ -49,5 +50,6 @@ Equities Fund.
 - **DDD approach** - use investment module to encapsulate business logic. We could extend this to have more domain related modules in the future
 - **Seperate database from investment (domain) module** - although with DDD the database could be considered part of the investment domain, i have decided to seperate them. This leans into better seperation of concerns and makes our database module reusable across domain modules.
 - **keep the main.go file clean** - I have opted to use a service module to handle the service and dependency setup.
+- **Make a clear distinction between employee and retail customers in investment module** - seperate the creating of investments for retail and employee customers, so we can easily add more business rules for each case in the future.
 
 TODO - write up how we would implement investing in multilple funds and what could be any issues with this (different fund rules?)

@@ -16,6 +16,8 @@ type Investment struct {
 	CreatedAt  string
 }
 
+// TODO - SHOULD THESE STRUCT DEFINITIONS BE IN A TYPES PACKAGE TO AVOID DEPENDENCY IN SAY THE GRAPH PACKAGE
+
 // CreateInvestment inserts a new investment in a transaction.
 func (p *PostgresClient) CreateInvestment(ctx context.Context, investment *Investment) (*Investment, error) {
 	tx, err := p.Database.BeginTx(ctx, pgx.TxOptions{})

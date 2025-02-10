@@ -41,6 +41,19 @@ input InvestmentInput {
   The amount the customer wants to invest.
   """
   amount: Float!
+
+  """
+  The type of customer: retail or employee.
+  """
+  customerType: CustomerType!
+}
+
+"""
+Defines the possible customer types.
+"""
+enum CustomerType {
+  RETAIL
+  EMPLOYEE
 }
 
 """

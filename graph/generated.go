@@ -3364,7 +3364,7 @@ func (ec *executionContext) unmarshalInputInvestmentInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"customerId", "fundId", "amount"}
+	fieldsInOrder := [...]string{"customerId", "fundId", "amount", "customerType"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3392,6 +3392,13 @@ func (ec *executionContext) unmarshalInputInvestmentInput(ctx context.Context, o
 				return it, err
 			}
 			it.Amount = data
+		case "customerType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("customerType"))
+			data, err := ec.unmarshalNCustomerType2githubᚗcomᚋJakeHumphriesᚋinvestmentᚑserviceᚋgraphᚋmodelᚐCustomerType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CustomerType = data
 		}
 	}
 
@@ -4085,6 +4092,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNCustomerType2githubᚗcomᚋJakeHumphriesᚋinvestmentᚑserviceᚋgraphᚋmodelᚐCustomerType(ctx context.Context, v any) (model.CustomerType, error) {
+	var res model.CustomerType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCustomerType2githubᚗcomᚋJakeHumphriesᚋinvestmentᚑserviceᚋgraphᚋmodelᚐCustomerType(ctx context.Context, sel ast.SelectionSet, v model.CustomerType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v any) (float64, error) {

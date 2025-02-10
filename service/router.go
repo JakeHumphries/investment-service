@@ -24,7 +24,7 @@ func (s *Service) newRouter() http.Handler {
 
 	chiRouter.Handle("GET /health", healthcheck.Handler())
 
-	resolver := graph.NewResolver(s.logger)
+	resolver := graph.NewResolver(s.logger, s.investmentClient)
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
 

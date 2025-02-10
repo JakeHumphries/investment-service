@@ -11,6 +11,7 @@ import (
 
 	"github.com/JakeHumphries/investment-service/config"
 	"github.com/JakeHumphries/investment-service/database"
+	"github.com/JakeHumphries/investment-service/investment"
 )
 
 // HTTPServer encapsulates two http server operations  that we need to execute in the service
@@ -25,6 +26,7 @@ type Service struct {
 	stopChannel chan bool
 	httpServer  HTTPServer
 	logger      *zap.Logger
+	investmentClient investment.ClientInterface
 }
 
 // NewService creates a new instance of the service struct that instanciates the service dependencies
@@ -47,7 +49,12 @@ func NewService(ctx context.Context) (*Service, error) {
 		return nil, fmt.Errorf("failed to create database client: %w", err)
 	}
 
+	s.investmentClient = investment.NewClient(dbClient)
+
+	r := s.newRouter()
+
 	s.httpServer = &http.Server{
+		Handler: r,
 		Addr: fmt.Sprintf(":%d", cfg.Port),
 	}
 
