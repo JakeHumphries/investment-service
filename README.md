@@ -1,6 +1,6 @@
 # investment-service
 
-The Investment Service handles the processing and management of customer investments into available funds
+The Investment Service handles the processing and management of customer investments into available funds.
 
 ## Running Locally
 
