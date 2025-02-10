@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/JakeHumphries/investment-service/database"
+	"github.com/JakeHumphries/investment-service/models"
 )
 
 // Define constants for customer types
@@ -26,24 +26,25 @@ const (
 //
 //go:generate mockery --name ClientInterface
 type ClientInterface interface {
-	CreateInvestment(ctx context.Context, investment database.Investment, customerType string) (*database.Investment, error)
-	GetInvestments(ctx context.Context, customerID string, encodedCursor *string, limit int) ([]database.Investment, *string, error)
+	CreateInvestment(ctx context.Context, investment models.Investment, customerType string) (*models.Investment, error)
+	GetInvestments(ctx context.Context, customerID string, encodedCursor *string, limit int) ([]models.Investment, *string, error)
+	GetFunds(ctx context.Context) ([]models.Fund, error)
 }
 
 // Client contains the business logic for managing investments.
 type Client struct {
-	db database.Client
+	db models.Repository
 }
 
 // NewClient returns a new instance of the investment client.
-func NewClient(db database.Client) *Client {
+func NewClient(db models.Repository) *Client {
 	return &Client{
 		db: db,
 	}
 }
 
 // CreateInvestment handles investment creation and delegates based on customer type.
-func (c *Client) CreateInvestment(ctx context.Context, investment database.Investment, customerType string) (*database.Investment, error) {
+func (c *Client) CreateInvestment(ctx context.Context, investment models.Investment, customerType string) (*models.Investment, error) {
 	fund, err := c.db.GetFundByID(ctx, investment.FundID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get fund: %w", err)
@@ -64,7 +65,7 @@ func (c *Client) CreateInvestment(ctx context.Context, investment database.Inves
 }
 
 // handleRetailInvestment processes retail investments.
-func (c *Client) handleRetailInvestment(ctx context.Context, investment database.Investment, fund *database.Fund) (*database.Investment, error) {
+func (c *Client) handleRetailInvestment(ctx context.Context, investment models.Investment, fund *models.Fund) (*models.Investment, error) {
 	if strings.ToLower(fund.Category) != FundCategoryRetailISA {
 		return nil, fmt.Errorf("retail customers can only invest in retail ISAs")
 	}
@@ -73,7 +74,7 @@ func (c *Client) handleRetailInvestment(ctx context.Context, investment database
 }
 
 // handleEmployeeInvestment processes employee investments.
-func (c *Client) handleEmployeeInvestment(ctx context.Context, investment database.Investment, fund *database.Fund) (*database.Investment, error) {
+func (c *Client) handleEmployeeInvestment(ctx context.Context, investment models.Investment, fund *models.Fund) (*models.Investment, error) {
 	if strings.ToLower(fund.Category) != FundCategoryEmployeeISA && strings.ToLower(fund.Category) != FundCategoryEmployeePension {
 		return nil, fmt.Errorf("employees can only invest in employer ISAs or pensions")
 	}
@@ -82,7 +83,7 @@ func (c *Client) handleEmployeeInvestment(ctx context.Context, investment databa
 }
 
 // GetInvestments retrieves a paginated list of investments for a customer.
-func (c *Client) GetInvestments(ctx context.Context, customerID string, encodedCursor *string, limit int) ([]database.Investment, *string, error) {
+func (c *Client) GetInvestments(ctx context.Context, customerID string, encodedCursor *string, limit int) ([]models.Investment, *string, error) {
 	var cursor *string
 	if encodedCursor != nil {
 		decodedCursor, err := decodeCursor(*encodedCursor)
@@ -106,7 +107,6 @@ func (c *Client) GetInvestments(ctx context.Context, customerID string, encodedC
 	return investments, encodedNextCursor, nil
 }
 
-// Encode and decode cursors for pagination.
 func decodeCursor(encodedCursor string) (*string, error) {
 	decodedBytes, err := base64.StdEncoding.DecodeString(encodedCursor)
 	if err != nil {
@@ -118,4 +118,13 @@ func decodeCursor(encodedCursor string) (*string, error) {
 
 func encodeCursor(timestamp string) string {
 	return base64.StdEncoding.EncodeToString([]byte(timestamp))
+}
+
+// GetFunds retrieves all available funds.
+func (c *Client) GetFunds(ctx context.Context) ([]models.Fund, error) {
+	funds, err := c.db.GetFunds(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch funds: %w", err)
+	}
+	return funds, nil
 }

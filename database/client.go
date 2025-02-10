@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/JakeHumphries/investment-service/config"
+	"github.com/JakeHumphries/investment-service/models"
 )
 
 // NewClient creates a new instance of the database client
@@ -59,12 +60,12 @@ func NewPostgresClient(database PgxInterface) PostgresClient {
 // Client is the interface for the database client, used mainly for mocking
 //
 //go:generate mockery --name Client
-type Client interface{
-	GetFunds(ctx context.Context) ([]Fund, error)
-	GetFundByID(ctx context.Context, fundID string) (*Fund, error)
+type Client interface {
+	GetFunds(ctx context.Context) ([]models.Fund, error)
+	GetFundByID(ctx context.Context, fundID string) (*models.Fund, error)
 
-	CreateInvestment(ctx context.Context, investment *Investment) (*Investment, error)
-	GetInvestments(ctx context.Context, customerID string, limit int, cursor *string) ([]Investment, *string, error)
+	CreateInvestment(ctx context.Context, investment *models.Investment) (*models.Investment, error)
+	GetInvestments(ctx context.Context, customerID string, limit int, cursor *string) ([]models.Investment, *string, error)
 }
 
 // QueryExecer is the interface for being able to query or exec against a SQL database

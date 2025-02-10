@@ -4,22 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/JakeHumphries/investment-service/models"
 	"github.com/jackc/pgx/v5"
 )
 
-// Investment represents an investment record.
-type Investment struct {
-	ID         string
-	CustomerID string
-	FundID     string
-	Amount     float64
-	CreatedAt  string
-}
-
-// TODO - SHOULD THESE STRUCT DEFINITIONS BE IN A TYPES PACKAGE TO AVOID DEPENDENCY IN SAY THE GRAPH PACKAGE
-
 // CreateInvestment inserts a new investment in a transaction.
-func (p *PostgresClient) CreateInvestment(ctx context.Context, investment *Investment) (*Investment, error) {
+func (p *PostgresClient) CreateInvestment(ctx context.Context, investment *models.Investment) (*models.Investment, error) {
 	tx, err := p.Database.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to start transaction: %w", err)
@@ -52,22 +42,24 @@ func (p *PostgresClient) CreateInvestment(ctx context.Context, investment *Inves
 }
 
 // GetInvestments fetches a customer's investments with pagination.
-func (p *PostgresClient) GetInvestments(ctx context.Context, customerID string, limit int, cursor *string) ([]Investment, *string, error) {
+func (p *PostgresClient) GetInvestments(ctx context.Context, customerID string, limit int, cursor *string) ([]models.Investment, *string, error) {
 	args := []interface{}{customerID}
 	query := `
-		SELECT id, fund_id, amount, created_at
-		FROM investment
-		WHERE customer_id = $1`
+		SELECT i.id, i.customer_id, i.amount, i.created_at,
+		       f.id, f.name, f.category, f.created_at
+		FROM investment i
+		JOIN fund f ON i.fund_id = f.id
+		WHERE i.customer_id = $1`
 
 	argIndex := 2
 
 	if cursor != nil {
-		query += fmt.Sprintf(" AND created_at < $%d", argIndex)
+		query += fmt.Sprintf(" AND i.created_at < $%d", argIndex)
 		args = append(args, *cursor)
 		argIndex++
 	}
 
-	query += fmt.Sprintf(" ORDER BY created_at DESC LIMIT $%d", argIndex)
+	query += fmt.Sprintf(" ORDER BY i.created_at DESC LIMIT $%d", argIndex)
 	args = append(args, limit+1)
 
 	rows, err := p.Database.Query(ctx, query, args...)
@@ -76,12 +68,15 @@ func (p *PostgresClient) GetInvestments(ctx context.Context, customerID string, 
 	}
 	defer rows.Close()
 
-	var investments []Investment
+	var investments []models.Investment
 	var nextCursor *string
 
 	for rows.Next() {
-		var inv Investment
-		if err := rows.Scan(&inv.ID, &inv.FundID, &inv.Amount, &inv.CreatedAt); err != nil {
+		var inv models.Investment
+		if err := rows.Scan(
+			&inv.ID, &inv.CustomerID, &inv.Amount, &inv.CreatedAt,
+			&inv.Fund.ID, &inv.Fund.Name, &inv.Fund.Category, &inv.Fund.CreatedAt,
+		); err != nil {
 			return nil, nil, fmt.Errorf("failed to scan investment: %w", err)
 		}
 		investments = append(investments, inv)
