@@ -1,0 +1,97 @@
+{
+	"info": {
+		"_postman_id": "d8df0b79-999e-492f-a1fb-bc5cf72f8acf",
+		"name": "investment-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22850744"
+	},
+	"item": [
+		{
+			"name": "Invest",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation Invest($input: InvestmentInput!) {\n  invest(input: $input) {\n    id\n    amount\n    createdAt\n    fund {\n      id\n      name\n      category\n    }\n  }\n}\n",
+						"variables": "{\n  \"input\": {\n    \"customerID\": \"customer-123\",\n    \"fundID\": \"fund-456\",\n    \"amount\": 25000,\n    \"customerType\": \"RETAIL\"\n  }\n}\n"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:10001/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "10001",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetFunds",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation Invest($input: InvestmentInput!) {\n  invest(input: $input) {\n    id\n    amount\n    createdAt\n    fund {\n      id\n      name\n      category\n    }\n  }\n}\n",
+						"variables": "{\n  \"input\": {\n    \"customerID\": \"customer-123\",\n    \"fundID\": \"fund-456\",\n    \"amount\": 25000,\n    \"customerType\": \"RETAIL\"\n  }\n}\n"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:10001/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "10001",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetInvestments",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query GetInvestments($customerID: String!, $limit: Int!, $cursor: String) {\n  getInvestments(customerID: $customerID, limit: $limit, cursor: $cursor) {\n    investments {\n      id\n      amount\n      createdAt\n      fund {\n        id\n        name\n        category\n      }\n    }\n    nextCursor\n  }\n}",
+						"variables": "{\n  \"customerID\": \"customer-123\",\n  \"limit\": 10,\n  \"cursor\": null\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:10001/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "10001",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -2,9 +2,38 @@
 
 ## Running Locally
 
+Run `docker-compose up -d --build investment-service ` to initialize the service, and all of its dependencies
+
+I have included a postman collection to use when running the service [here](./task-resources/investment-service.postman_collection.json)
+
 ## Running Tests
 
+Run `go test ./...`
+
+## Mockery
+
+This service uses [mockery](https://vektra.github.io/mockery/) to generate mock interfaces for testing.
+
+* install via homebrew `brew install mockery`
+* generate mocks using `go generate ./...`
+
+To mock a new interface add a comment in the same file like this:
+```go
+//go:generate mockery --name Example
+type Example interface {
+	Test() string
+}
+```
+
 ## Environment Variables
+
+There is only 1 environment variable that is required in this service.
+
+*   DATABASE_URL - The URL for the database
+
+## API
+
+* Usually i would generate graphQL documentation via SpectaQL. However for the purposes of this task i have included a postman collection [here](./task-resources/investment-service.postman_collection.json)
 
 ## Problem statement
 
@@ -40,6 +69,9 @@ Equities Fund.
 - Fund data already exists in the database - I have not implemented an endpoint to create fund data as i assume this will be handled in another microservice. I have however inserted some default data for funds in a migrations file
 - When investing the amount must be greater than zero and meet any minimum deposit limits (we dont have any info on this).
 - We dont need to worry about cancelling investments (although this could be a feature in the future)
+- Assuming investments are made in GBP only (or whatever the default is), without multi-currency support.
+- Assuming all funds have the same rules for now (no ruling on how many investments you can make etc)
+- Assuming the service does not need to handle tax implications of ISAs (this is likely managed by another service).
 
 ## Decision log
 - **Use a microservice style architecture with domain driven elements** - although only one service, we are using microservice principles (only handles investments/single responsibility, independent database storage, API driven, and doesnt store session state etc)
@@ -49,24 +81,38 @@ Equities Fund.
 - **Dont use internal package** - Given this is a self contained API (not a library), there is no risk of accidental imports by external projects, so to keep it simple i have decided not to use an internal package (although it is idiomatic to use one).
 - **DDD approach** - use investment module to encapsulate business logic. We could extend this to have more domain related modules in the future
 - **Seperate database from investment (domain) module** - although with DDD the database could be considered part of the investment domain, i have decided to seperate them. This leans into better seperation of concerns and makes our database module reusable across domain modules.
-- **keep the main.go file clean** - I have opted to use a service module to handle the service and dependency setup.
+- **Keep the main.go file clean** - I have opted to use a service module to handle the service and dependency setup.
 - **Make a clear distinction between employee and retail customers in investment module** - seperate the creating of investments for retail and employee customers, so we can easily add more business rules for each case in the future.
+- **Cursor based pagination** - I decided to use a cursor based pagination implementation as if we are working with large data sets, the OFFSET can introduce performance issues. Also a large influx of created investments could cause issue with shifting rows and make the user experience not good.
+- **Dev Dockerfile** in this repo is for dev purposes only, i have added a sample production Dockefile (although i didnt get time to test this)
 
 ## Improvements
-- implement auth middleware to check JWT in request and extract customerID (for example) form the claims in the context in the gql handlers.
-- implement better errors returning from graphQL requests (making sure we dont leak implementation details)
-
-TODO - write up how we would implement investing in multilple funds and what could be any issues with this (different fund rules?)
+- Implement multi fund investments - update graphQL to take a list of investments, process multiple investments in single db transaction, use concurrency to handle request faster (would have to be careful with race conditions for fund rules like a max deposit. We could use a row lock on the db or mutex's if its not db related)
+- Use transactionIDs to prevent accidental duplicate investments
+- Implement auth middleware to check JWT in request and extract customerID (for example) form the claims in the context in the gql handlers.
+- Add better fund information (very basic right now)
+- Implement a cancel investment / withdraw endpoint
+- Validate investment inputs when createInvestment is called
+- Implement better errors returning from graphQL requests (making sure we dont leak implementation details)
+- Implement tests across the board (currently only business logic package has been covered)
+- Implement integration tests (spin up a database, make a GraphQL call)
+- Implement load testing: artillery or K6 maybe?
+- Implement tracing (Jaeger?)
+- Implement metrics and dashboard. Transaction count per customer, Transactions per fund etc (grafana? datadog?)
+- Implement a CICD pipeline
+- Implement a cache for getFunds/getInvestments (redis or even in memory) might not be worth it depending on how this service would be used.
+- Handle high load better: read/write db instances?, index the db, add a rate limiter, add horizontal pod autoscaling (if using K8s), caching endpoints
+- build graphQL documentation with SpectaQL
 
 ## Local dev testing
 
 - getFunds (query)
-![get funds via postman](./testing_screenshots/get-funds.png)
+![get funds via postman](./task-resources/testing-screenshots/get-funds.png)
 
 - invest (mutation)
-![invest via postman](./testing_screenshots/invest.png)
+![invest via postman](./task-resources/testing-screenshots/invest.png)
 
 - getInvestments with pagination(query)
-![invest via postman](./testing_screenshots/get-investments-pagination-1.png)
-![invest via postman](./testing_screenshots/get-investments-pagination-2.png)
-![invest via postman](./testing_screenshots/get-investments-pagination-3.png)
+![invest via postman](./task-resources/testing-screenshots/get-investments-pagination-1.png)
+![invest via postman](./task-resources/testing-screenshots/get-investments-pagination-2.png)
+![invest via postman](./task-resources/testing-screenshots/get-investments-pagination-3.png)
