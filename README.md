@@ -47,6 +47,7 @@ Equities Fund.
 - **Dont use a ORM** - lots of overhead and using SQL queries allows us to take a more performant, fine grained approach. This does come at a tradeoff for readability
 - **Dont use internal package** - Given this is a self contained API (not a library), there is no risk of accidental imports by external projects, so to keep it simple i have decided not to use an internal package (although it is idiomatic to use one).
 - **DDD approach** - use investment module to encapsulate business logic. We could extend this to have more domain related modules in the future
-- **Seperate repository & db modules** - seperation of concerns, db package focused on db setup and migrations, whereas repository interacts with the database. helps if we decide to change db provider, and with mocking.
-- **Seperate repository from investment (domain) module** - although with DDD the repository could be considered part of the investment domain, i have decided to seperate them. This leans into better seperation of concerns and makes our repository module reusable across domain modules.
+- **Seperate database from investment (domain) module** - although with DDD the database could be considered part of the investment domain, i have decided to seperate them. This leans into better seperation of concerns and makes our database module reusable across domain modules.
 - **keep the main.go file clean** - I have opted to use a service module to handle the service and dependency setup.
+
+TODO - write up how we would implement investing in multilple funds and what could be any issues with this (different fund rules?)

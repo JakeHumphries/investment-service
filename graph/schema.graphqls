@@ -16,7 +16,7 @@ type Query {
 
 type Mutation {
   """
-  Allows a customer to invest in a selected fund.
+  Allows a customer to invest in a selected fund. In the future this could take a list to encorporate multiple funds
   """
   invest(
     input: InvestmentInput!

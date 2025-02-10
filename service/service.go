@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/JakeHumphries/investment-service/config"
+	"github.com/JakeHumphries/investment-service/database"
 )
 
 // HTTPServer encapsulates two http server operations  that we need to execute in the service
@@ -39,6 +40,11 @@ func NewService(ctx context.Context) (*Service, error) {
 		config:      cfg,
 		logger:      logger,
 		stopChannel: make(chan bool),
+	}
+
+	dbClient, err := database.NewClient(ctx, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create database client: %w", err)
 	}
 
 	s.httpServer = &http.Server{
