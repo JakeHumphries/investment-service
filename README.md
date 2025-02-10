@@ -1,5 +1,7 @@
 # investment-service
 
+The Investment Service handles the processing and management of customer investments into available funds
+
 ## Running Locally
 
 Run `docker-compose up -d --build investment-service ` to initialize the service, and all of its dependencies
