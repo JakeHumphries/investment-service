@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/JakeHumphries/investment-service/models"
 	"github.com/jackc/pgx/v5"
@@ -23,13 +24,15 @@ func (p *PostgresClient) CreateInvestment(ctx context.Context, investment *model
 		}
 	}()
 
+	var createdAt time.Time
+
 	query := `
 		INSERT INTO investment (customer_id, fund_id, amount)
 		VALUES ($1, $2, $3)
 		RETURNING id, created_at`
 	row := tx.QueryRow(ctx, query, investment.CustomerID, investment.FundID, investment.Amount)
 
-	err = row.Scan(&investment.ID, &investment.CreatedAt)
+	err = row.Scan(&investment.ID, &createdAt)
 	if err != nil {
 		return nil, fmt.Errorf("failed to insert investment: %w", err)
 	}
@@ -38,6 +41,15 @@ func (p *PostgresClient) CreateInvestment(ctx context.Context, investment *model
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
+	investment.CreatedAt = createdAt.Format(time.RFC3339)
+
+	fund, err := p.GetFundByID(ctx, investment.FundID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch fund details: %w", err)
+	}
+
+	investment.Fund = *fund
+
 	return investment, nil
 }
 
@@ -45,14 +57,13 @@ func (p *PostgresClient) CreateInvestment(ctx context.Context, investment *model
 func (p *PostgresClient) GetInvestments(ctx context.Context, customerID string, limit int, cursor *string) ([]models.Investment, *string, error) {
 	args := []interface{}{customerID}
 	query := `
-		SELECT i.id, i.customer_id, i.amount, i.created_at,
+		SELECT i.id, i.customer_id, i.fund_id, i.amount, i.created_at,
 		       f.id, f.name, f.category, f.created_at
 		FROM investment i
 		JOIN fund f ON i.fund_id = f.id
 		WHERE i.customer_id = $1`
 
 	argIndex := 2
-
 	if cursor != nil {
 		query += fmt.Sprintf(" AND i.created_at < $%d", argIndex)
 		args = append(args, *cursor)
@@ -73,12 +84,21 @@ func (p *PostgresClient) GetInvestments(ctx context.Context, customerID string, 
 
 	for rows.Next() {
 		var inv models.Investment
+		var fund models.Fund
+		var createdAt time.Time
+		var fundCreatedAt time.Time
+
 		if err := rows.Scan(
-			&inv.ID, &inv.CustomerID, &inv.Amount, &inv.CreatedAt,
-			&inv.Fund.ID, &inv.Fund.Name, &inv.Fund.Category, &inv.Fund.CreatedAt,
+			&inv.ID, &inv.CustomerID, &inv.FundID, &inv.Amount, &createdAt,
+			&fund.ID, &fund.Name, &fund.Category, &fundCreatedAt,
 		); err != nil {
 			return nil, nil, fmt.Errorf("failed to scan investment: %w", err)
 		}
+
+		inv.CreatedAt = createdAt.Format(time.RFC3339)
+		fund.CreatedAt = fundCreatedAt.Format(time.RFC3339)
+
+		inv.Fund = fund
 		investments = append(investments, inv)
 	}
 

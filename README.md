@@ -54,5 +54,11 @@ Equities Fund.
 
 ## Improvement
 - implement auth middleware to check JWT in request and extract customerID (for example) form the claims in the context in the gql handlers.
+- implement better errors returning from graphQL requests (making sure we dont leak implementation details)
 
 TODO - write up how we would implement investing in multilple funds and what could be any issues with this (different fund rules?)
+
+## Local dev testing
+
+- getFunds
+![get funds via postman](./test_screenshots/get-funds.png)
