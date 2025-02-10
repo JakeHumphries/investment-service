@@ -30,7 +30,6 @@ Equities Fund.
 - Initially they can only invest in one fund (future support for multiple funds).
 - Customers must specify how much they want to invest.
 - When investing the amount must be greater than zero
-- Customers must have a unique ID for tracking investments.
 - Customers should be able to fetch their investment details: Fund name, Amount invested, Investment date
 - There should be an API to list all available funds.
 - Authentication is required using JWT tokens.
@@ -39,6 +38,7 @@ Equities Fund.
 - Customers already exist - we wont manage users creation or authentication
 - Authentication with JWT - given this service is likely going to be consumed by a front end application, i have made the assumption we will be working with JWT tokens
 - When investing the amount must be greater than zero and meet any minimum deposit limits (we dont have any info on this).
+- We dont need to worry about cancelling investments (although this could be a feature in the future)
 
 ## Decision log
 - **Use a microservice style architecture with domain driven elements** - although only one service, we are using microservice principles (only handles investments/single responsibility, independent database storage, API driven, and doesnt store session state etc)

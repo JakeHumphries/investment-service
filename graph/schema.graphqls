@@ -1,0 +1,89 @@
+type Query {
+  """
+  Fetches a list of available investment funds.
+  """
+  getFunds: FundList!
+
+  """
+  Fetches a customer's investments, with optional pagination.
+  """
+  getInvestments(
+    customerId: ID!,
+    limit: Int!,
+    cursor: String
+  ): InvestmentList!
+}
+
+type Mutation {
+  """
+  Allows a customer to invest in a selected fund.
+  """
+  invest(
+    input: InvestmentInput!
+  ): Investment!
+}
+
+"""
+Input type for making an investment.
+"""
+input InvestmentInput {
+  """
+  The ID of the customer making the investment.
+  """
+  customerId: ID!
+
+  """
+  The ID of the fund the customer is investing in.
+  """
+  fundId: ID!
+
+  """
+  The amount the customer wants to invest.
+  """
+  amount: Float!
+}
+
+"""
+A paginated list of investment records.
+"""
+type InvestmentList {
+  """
+  The list of investments returned in this query.
+  """
+  investments: [Investment!]!
+
+  """
+  The cursor to use for the next page of results.
+  """
+  nextCursor: String
+}
+
+"""
+Represents an investment made by a customer.
+"""
+type Investment {
+  id: ID!
+  fund: Fund!
+  amount: Float!
+  createdAt: String!
+}
+
+"""
+Represents a list of investment funds.
+"""
+type FundList {
+  """
+  The list of funds available for investment.
+  """
+  funds: [Fund!]!
+}
+
+"""
+Represents an investment fund that customers can invest in.
+"""
+type Fund {
+  id: ID!
+  name: String!
+  category: String!
+  createdAt: String!
+}
