@@ -60,5 +60,13 @@ TODO - write up how we would implement investing in multilple funds and what cou
 
 ## Local dev testing
 
-- getFunds
-![get funds via postman](./test_screenshots/get-funds.png)
+- getFunds (query)
+![get funds via postman](./testing_screenshots/get-funds.png)
+
+- invest (mutation)
+![invest via postman](./testing_screenshots/invest.png)
+
+- getInvestments with pagination(query)
+![invest via postman](./testing_screenshots/get-investments-pagination-1.png)
+![invest via postman](./testing_screenshots/get-investments-pagination-2.png)
+![invest via postman](./testing_screenshots/get-investments-pagination-3.png)
