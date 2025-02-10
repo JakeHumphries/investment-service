@@ -59,7 +59,13 @@ func NewPostgresClient(database PgxInterface) PostgresClient {
 // Client is the interface for the database client, used mainly for mocking
 //
 //go:generate mockery --name Client
-type Client interface{}
+type Client interface{
+	GetFunds(ctx context.Context) ([]Fund, error)
+	GetFundByID(ctx context.Context, fundID string) (*Fund, error)
+
+	CreateInvestment(ctx context.Context, investment *Investment) (*Investment, error)
+	GetInvestments(ctx context.Context, customerID string, limit int, cursor *string) ([]Investment, *string, error)
+}
 
 // QueryExecer is the interface for being able to query or exec against a SQL database
 type QueryExecer interface {
