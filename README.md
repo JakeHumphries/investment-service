@@ -86,7 +86,7 @@ Equities Fund.
 - **Keep the main.go file clean** - I have opted to use a service module to handle the service and dependency setup.
 - **Make a clear distinction between employee and retail customers in investment module** - seperate the creating of investments for retail and employee customers, so we can easily add more business rules for each case in the future.
 - **Cursor based pagination** - I decided to use a cursor based pagination implementation as if we are working with large data sets, the OFFSET can introduce performance issues. Also a large influx of created investments could cause issue with shifting rows and make the user experience not good.
-- **Dev Dockerfile** in this repo is for dev purposes only, i have added a sample production Dockefile (although i didnt get time to test this)
+- **Dev Dockerfile** - The Dockerfile in this repo is for dev purposes only, i have added a sample production Dockefile (although i didnt get time to test this)
 
 ## Improvements
 - Implement multi fund investments - update graphQL to take a list of investments, process multiple investments in single db transaction, use concurrency to handle request faster (would have to be careful with race conditions for fund rules like a max deposit. We could use a row lock on the db or mutex's if its not db related)
