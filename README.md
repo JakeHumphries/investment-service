@@ -33,11 +33,10 @@ Equities Fund.
 - Customers should be able to fetch their investment details: Fund name, Amount invested, Investment date
 - There should be an API to list all available funds.
 - There should be a seperation of business rules for retail and employee investments
-- Authentication is required using JWT tokens.
 
 ## Assumptions
 - Customers already exist - we wont manage users creation or authentication
-- Authentication with JWT - given this service is likely going to be consumed by a front end application, i have made the assumption we will be working with JWT tokens
+- Authentication with JWT - although not implemented in this solution, i assume we are using JWTs and need to consider implementing this in the future in this service. 
 - When investing the amount must be greater than zero and meet any minimum deposit limits (we dont have any info on this).
 - We dont need to worry about cancelling investments (although this could be a feature in the future)
 
@@ -51,5 +50,8 @@ Equities Fund.
 - **Seperate database from investment (domain) module** - although with DDD the database could be considered part of the investment domain, i have decided to seperate them. This leans into better seperation of concerns and makes our database module reusable across domain modules.
 - **keep the main.go file clean** - I have opted to use a service module to handle the service and dependency setup.
 - **Make a clear distinction between employee and retail customers in investment module** - seperate the creating of investments for retail and employee customers, so we can easily add more business rules for each case in the future.
+
+## Improvement
+- implement auth middleware to check JWT in request and extract customerID (for example) form the claims in the context in the gql handlers.
 
 TODO - write up how we would implement investing in multilple funds and what could be any issues with this (different fund rules?)

@@ -3,48 +3,50 @@ package graph
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/JakeHumphries/investment-service/graph/model"
+	"go.uber.org/zap"
 )
 
-// Invest is the resolver for the invest field.
+// Invest is the resolver for the invest field (Mutation).
 func (r *mutationResolver) Invest(ctx context.Context, input model.InvestmentInput) (*model.Investment, error) {
-	// Convert GraphQL input to DB model
-	dbInvestment := MapGraphInvestmentInputToDB(&input)
+	r.logger.Info("Invest mutation started", zap.String("customerID", input.CustomerID), zap.String("fundID", input.FundID))
 
-	// Convert GraphQL enum to string for business logic
-	customerType := strings.ToLower(input.CustomerType.String())
-
-	// Call business logic with customerType
-	createdInvestment, err := r.investmentClient.CreateInvestment(ctx, dbInvestment, customerType)
+	dbInvestment, err := r.investmentClient.CreateInvestment(ctx, MapGraphInvestmentInputToDB(&input), input.CustomerType.String())
 	if err != nil {
+		r.logger.Error("Failed to process investment", zap.Error(err), zap.String("customerID", input.CustomerID), zap.String("fundID", input.FundID))
 		return nil, fmt.Errorf("failed to process investment: %w", err)
 	}
 
-	// Map DB investment to GraphQL model
-	return MapDBInvestmentToGraph(createdInvestment), nil
+	r.logger.Info("Investment successfully created", zap.String("investmentID", dbInvestment.ID), zap.String("customerID", input.CustomerID), zap.String("fundID", input.FundID))
+	return MapDBInvestmentToGraph(dbInvestment), nil
 }
 
-// GetFunds fetches all available funds.
+// GetFunds fetches all available funds (Query).
 func (r *queryResolver) GetFunds(ctx context.Context) (*model.FundList, error) {
+	r.logger.Info("Fetching funds")
+
 	funds, err := r.investmentClient.GetFunds(ctx)
 	if err != nil {
+		r.logger.Error("Failed to fetch funds", zap.Error(err))
 		return nil, fmt.Errorf("failed to fetch funds: %w", err)
 	}
 
+	r.logger.Info("Successfully fetched funds", zap.Int("count", len(funds)))
 	return MapDBFundsToGraphList(funds), nil
 }
 
-// GetInvestments retrieves a customer's investments with pagination.
+// GetInvestments retrieves a customer's investments with pagination (Query).
 func (r *queryResolver) GetInvestments(ctx context.Context, customerID string, limit int, cursor *string) (*model.InvestmentList, error) {
-	// Call business logic
+	r.logger.Info("Fetching investments", zap.String("customerID", customerID), zap.Int("limit", limit))
+
 	investments, nextCursor, err := r.investmentClient.GetInvestments(ctx, customerID, cursor, limit)
 	if err != nil {
+		r.logger.Error("Failed to fetch investments", zap.Error(err), zap.String("customerID", customerID))
 		return nil, fmt.Errorf("failed to fetch investments: %w", err)
 	}
 
-	// Convert to GraphQL model
+	r.logger.Info("Successfully fetched investments", zap.String("customerID", customerID), zap.Int("investmentCount", len(investments)))
 	return MapDBInvestmentsToGraphList(investments, nextCursor), nil
 }
 
@@ -58,5 +60,3 @@ type (
 	mutationResolver struct{ *Resolver }
 	queryResolver    struct{ *Resolver }
 )
-
-// TODO we havent done anything with jwt's yet
