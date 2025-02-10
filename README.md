@@ -37,7 +37,7 @@ Equities Fund.
 ## Assumptions
 - Customers already exist - we wont manage users creation or authentication
 - Authentication with JWT - although not implemented in this solution, i assume we are using JWTs and need to consider implementing this in the future in this service.
-- Fund data already exists in the database. I have not implemented an endpoint to create fund data as i assume this will be handled in another microservice. I have however inserted some default data for funds in a migrations file
+- Fund data already exists in the database - I have not implemented an endpoint to create fund data as i assume this will be handled in another microservice. I have however inserted some default data for funds in a migrations file
 - When investing the amount must be greater than zero and meet any minimum deposit limits (we dont have any info on this).
 - We dont need to worry about cancelling investments (although this could be a feature in the future)
 
@@ -52,7 +52,7 @@ Equities Fund.
 - **keep the main.go file clean** - I have opted to use a service module to handle the service and dependency setup.
 - **Make a clear distinction between employee and retail customers in investment module** - seperate the creating of investments for retail and employee customers, so we can easily add more business rules for each case in the future.
 
-## Improvement
+## Improvements
 - implement auth middleware to check JWT in request and extract customerID (for example) form the claims in the context in the gql handlers.
 - implement better errors returning from graphQL requests (making sure we dont leak implementation details)
 

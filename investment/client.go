@@ -45,13 +45,13 @@ func NewClient(db models.Repository) *Client {
 
 // CreateInvestment handles investment creation and delegates based on customer type.
 func (c *Client) CreateInvestment(ctx context.Context, investment models.Investment, customerType string) (*models.Investment, error) {
+	if investment.Amount <= 0 {
+		return nil, fmt.Errorf("investment amount must be greater than zero")
+	}
+
 	fund, err := c.db.GetFundByID(ctx, investment.FundID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get fund: %w", err)
-	}
-
-	if investment.Amount <= 0 {
-		return nil, fmt.Errorf("investment amount must be greater than zero")
 	}
 
 	switch strings.ToLower(customerType) {
