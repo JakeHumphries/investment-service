@@ -36,7 +36,8 @@ Equities Fund.
 
 ## Assumptions
 - Customers already exist - we wont manage users creation or authentication
-- Authentication with JWT - although not implemented in this solution, i assume we are using JWTs and need to consider implementing this in the future in this service. 
+- Authentication with JWT - although not implemented in this solution, i assume we are using JWTs and need to consider implementing this in the future in this service.
+- Fund data already exists in the database. I have not implemented an endpoint to create fund data as i assume this will be handled in another microservice. I have however inserted some default data for funds in a migrations file
 - When investing the amount must be greater than zero and meet any minimum deposit limits (we dont have any info on this).
 - We dont need to worry about cancelling investments (although this could be a feature in the future)
 

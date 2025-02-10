@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS investment;
+
+DROP EXTENSION IF EXISTS pgcrypto;

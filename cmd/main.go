@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	log.Println("Starting the user service...")
+	log.Println("Starting the investment service...")
 	ctx := context.Background()
 	s, err := service.NewService(ctx)
 	if err != nil {

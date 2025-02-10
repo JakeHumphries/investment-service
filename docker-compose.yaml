@@ -1,0 +1,47 @@
+services:
+  db-postgres:
+    container_name: db-postgres
+    image: postgres:12.8-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_PASSWORD=password
+      - TZ="Europe/London"
+    volumes:
+      - data-postgres:/var/lib/postgresql/data
+      # When first created this container will execute the init.sql script. This will only be done once.
+      - ./docker/db-postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      investments:
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  investment-service:
+    container_name: investments-service
+    build:
+      context: .
+      dockerfile: docker/development/Dockerfile
+    depends_on:
+      db-postgres:
+        condition: service_healthy
+    volumes:
+      - .:/service
+      - cache-go:/go
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db-postgres:5432/investments?sslmode=disable
+    networks:
+      investments:
+    ports:
+      - '10001:8080'
+
+volumes:
+  data-postgres:
+  cache-go:
+
+networks:
+  investments:
+    driver: bridge
