@@ -89,7 +89,7 @@ Equities Fund.
 ## Improvements
 - Implement multi fund investments - update graphQL to take a list of investments, process multiple investments in single db transaction, use concurrency to handle request faster (would have to be careful with race conditions for fund rules like a max deposit. We could use a row lock on the db or mutex's if its not db related)
 - Use transactionIDs to prevent accidental duplicate investments
-- Implement auth middleware to check JWT in request and extract customerID (for example) form the claims in the context in the gql handlers.
+- Implement auth middleware to check JWT in request and extract customerID (for example) from the claims in the context in the gql handlers.
 - Add better fund information (very basic right now)
 - Implement a cancel investment / withdraw endpoint
 - Validate investment inputs when createInvestment is called
@@ -101,7 +101,7 @@ Equities Fund.
 - Implement metrics and dashboard. Transaction count per customer, Transactions per fund etc (grafana? datadog?)
 - Implement a CICD pipeline
 - Implement a cache for getFunds/getInvestments (redis or even in memory) might not be worth it depending on how this service would be used.
-- Handle high load better: read/write db instances?, index the db, add a rate limiter, add horizontal pod autoscaling (if using K8s), caching endpoints
+- Handle high load better: load balancer, read/write db instances?, message queues for transactions, index the db, add a rate limiter, add horizontal pod autoscaling (if using K8s), caching endpoints
 - build graphQL documentation with SpectaQL
 
 ## Local dev testing
