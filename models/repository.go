@@ -6,7 +6,7 @@ import "context"
 //
 //go:generate mockery --name Repository
 type Repository interface {
-	GetFunds(ctx context.Context) ([]Fund, error)
+	GetFunds(ctx context.Context, customerType string) ([]Fund, error)
 	GetFundByID(ctx context.Context, fundID string) (*Fund, error)
 
 	CreateInvestment(ctx context.Context, investment *Investment) (*Investment, error)

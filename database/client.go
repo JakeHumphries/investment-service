@@ -61,7 +61,7 @@ func NewPostgresClient(database PgxInterface) PostgresClient {
 //
 //go:generate mockery --name Client
 type Client interface {
-	GetFunds(ctx context.Context) ([]models.Fund, error)
+	GetFunds(ctx context.Context, customerType string) ([]models.Fund, error)
 	GetFundByID(ctx context.Context, fundID string) (*models.Fund, error)
 
 	CreateInvestment(ctx context.Context, investment *models.Investment) (*models.Investment, error)

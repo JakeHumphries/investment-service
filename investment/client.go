@@ -3,6 +3,7 @@ package investment
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -15,20 +16,13 @@ const (
 	CustomerTypeEmployee = "employee"
 )
 
-// Define constants for fund categories
-const (
-	FundCategoryRetailISA       = "retail_isa"
-	FundCategoryEmployeeISA     = "employee_isa"
-	FundCategoryEmployeePension = "employee_pension"
-)
-
 // ClientInterface defines the business logic for investments.
 //
 //go:generate mockery --name ClientInterface
 type ClientInterface interface {
 	CreateInvestment(ctx context.Context, investment models.Investment, customerType string) (*models.Investment, error)
 	GetInvestments(ctx context.Context, customerID string, encodedCursor *string, limit int) ([]models.Investment, *string, error)
-	GetFunds(ctx context.Context) ([]models.Fund, error)
+	GetFunds(ctx context.Context, customerType string) ([]models.Fund, error)
 }
 
 // Client contains the business logic for managing investments.
@@ -46,7 +40,7 @@ func NewClient(db models.Repository) *Client {
 // CreateInvestment handles investment creation and delegates based on customer type.
 func (c *Client) CreateInvestment(ctx context.Context, investment models.Investment, customerType string) (*models.Investment, error) {
 	if investment.Amount <= 0 {
-		return nil, fmt.Errorf("investment amount must be greater than zero")
+		return nil, errors.New("investment amount must be greater than zero")
 	}
 
 	fund, err := c.db.GetFundByID(ctx, investment.FundID)
@@ -54,30 +48,34 @@ func (c *Client) CreateInvestment(ctx context.Context, investment models.Investm
 		return nil, fmt.Errorf("failed to get fund: %w", err)
 	}
 
+	if strings.ToLower(customerType) != CustomerTypeRetail && strings.ToLower(customerType) != CustomerTypeEmployee {
+		return nil, fmt.Errorf("invalid customer type: %s", customerType)
+	}
+
+	if strings.ToLower(fund.CustomerType) != strings.ToLower(customerType) {
+		return nil, fmt.Errorf("%s customers can only invest in %s funds", customerType, fund.CustomerType)
+	}
+
 	switch strings.ToLower(customerType) {
 	case CustomerTypeRetail:
-		return c.handleRetailInvestment(ctx, investment, fund)
+		return c.handleRetailInvestment(ctx, investment)
 	case CustomerTypeEmployee:
-		return c.handleEmployeeInvestment(ctx, investment, fund)
+		return c.handleEmployeeInvestment(ctx, investment)
 	default:
 		return nil, fmt.Errorf("invalid customer type: %s", customerType)
 	}
 }
 
 // handleRetailInvestment processes retail investments.
-func (c *Client) handleRetailInvestment(ctx context.Context, investment models.Investment, fund *models.Fund) (*models.Investment, error) {
-	if strings.ToLower(fund.Category) != FundCategoryRetailISA {
-		return nil, fmt.Errorf("retail customers can only invest in retail ISAs")
-	}
+func (c *Client) handleRetailInvestment(ctx context.Context, investment models.Investment) (*models.Investment, error) {
+	// Add additional business logic / rules here
 
 	return c.db.CreateInvestment(ctx, &investment)
 }
 
 // handleEmployeeInvestment processes employee investments.
-func (c *Client) handleEmployeeInvestment(ctx context.Context, investment models.Investment, fund *models.Fund) (*models.Investment, error) {
-	if strings.ToLower(fund.Category) != FundCategoryEmployeeISA && strings.ToLower(fund.Category) != FundCategoryEmployeePension {
-		return nil, fmt.Errorf("employees can only invest in employer ISAs or pensions")
-	}
+func (c *Client) handleEmployeeInvestment(ctx context.Context, investment models.Investment) (*models.Investment, error) {
+	// Add additional business logic / rules here
 
 	return c.db.CreateInvestment(ctx, &investment)
 }
@@ -121,8 +119,8 @@ func encodeCursor(timestamp string) string {
 }
 
 // GetFunds retrieves all available funds.
-func (c *Client) GetFunds(ctx context.Context) ([]models.Fund, error) {
-	funds, err := c.db.GetFunds(ctx)
+func (c *Client) GetFunds(ctx context.Context, customerType string) ([]models.Fund, error) {
+	funds, err := c.db.GetFunds(ctx, customerType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch funds: %w", err)
 	}

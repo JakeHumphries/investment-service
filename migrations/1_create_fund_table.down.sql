@@ -1,5 +1,7 @@
 DROP TABLE IF EXISTS fund;
 
-DROP TYPE IF EXISTS fund_category;
+DROP TYPE IF EXISTS category;
+
+DROP TYPE IF EXISTS customer_type;
 
 DROP EXTENSION IF EXISTS pgcrypto;

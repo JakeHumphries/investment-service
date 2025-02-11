@@ -2,7 +2,9 @@ type Query {
   """
   Fetches a list of available investment funds.
   """
-  getFunds: FundList!
+  getFunds(
+    customerType: CustomerType!
+  ): FundList!
 
   """
   Fetches a customer's investments, with optional pagination.

@@ -24,9 +24,10 @@ func TestCreateInvestment(t *testing.T) {
 	}
 
 	validFund := &models.Fund{
-		ID:       "fund-456",
-		Name:     "Cushon Equities Fund",
-		Category: FundCategoryRetailISA,
+		ID:           "fund-456",
+		Name:         "Cushon Equities Fund",
+		Category:     "ISA",
+		CustomerType: CustomerTypeRetail,
 	}
 
 	t.Run("success case: it should create an investment", func(t *testing.T) {
@@ -41,12 +42,17 @@ func TestCreateInvestment(t *testing.T) {
 		mockDB.AssertExpectations(t)
 	})
 
-	t.Run("failure case: db.CreateInvestment should error", func(t *testing.T) {
-		mockDB.EXPECT().GetFundByID(ctx, validInvestment.FundID).Return(validFund, nil).Once()
-		mockDB.EXPECT().CreateInvestment(ctx, mock.AnythingOfType("*models.Investment")).Return(nil, errors.New("db error")).Once()
+	t.Run("failure case: customerType mismatch", func(t *testing.T) {
+		invalidFund := &models.Fund{
+			ID:           "fund-456",
+			Name:         "Cushon Pension Fund",
+			Category:     "PENSION",
+			CustomerType: CustomerTypeEmployee,
+		}
+		mockDB.EXPECT().GetFundByID(ctx, validInvestment.FundID).Return(invalidFund, nil).Once()
 
 		result, err := client.CreateInvestment(ctx, validInvestment, CustomerTypeRetail)
-		assert.ErrorContains(t, err, "db error")
+		assert.ErrorContains(t, err, "retail customers can only invest in employee funds")
 		assert.Nil(t, result)
 
 		mockDB.AssertExpectations(t)
@@ -54,6 +60,7 @@ func TestCreateInvestment(t *testing.T) {
 
 	t.Run("failure case: invalid customer type", func(t *testing.T) {
 		mockDB.EXPECT().GetFundByID(ctx, validInvestment.FundID).Return(validFund, nil).Once()
+
 		result, err := client.CreateInvestment(ctx, validInvestment, "invalid_customer_type")
 		assert.ErrorContains(t, err, "invalid customer type")
 		assert.Nil(t, result)
@@ -135,24 +142,34 @@ func TestGetFunds(t *testing.T) {
 	client := NewClient(mockDB)
 
 	funds := []models.Fund{
-		{ID: "fund-1", Name: "Cushon Equities Fund", Category: FundCategoryRetailISA},
-		{ID: "fund-2", Name: "Cushon Pension Fund", Category: FundCategoryEmployeePension},
+		{ID: "fund-1", Name: "Cushon Equities Fund", Category: "ISA", CustomerType: CustomerTypeRetail},
+		{ID: "fund-2", Name: "Cushon Pension Fund", Category: "PENSION", CustomerType: CustomerTypeEmployee},
 	}
 
-	t.Run("success case: it should retrieve funds", func(t *testing.T) {
-		mockDB.EXPECT().GetFunds(ctx).Return(funds, nil).Once()
+	t.Run("success case: it should retrieve funds for Retail customers", func(t *testing.T) {
+		mockDB.EXPECT().GetFunds(ctx, CustomerTypeRetail).Return([]models.Fund{funds[0]}, nil).Once()
 
-		result, err := client.GetFunds(ctx)
+		result, err := client.GetFunds(ctx, CustomerTypeRetail)
 		assert.NoError(t, err)
-		assert.Equal(t, funds, result)
+		assert.Equal(t, []models.Fund{funds[0]}, result)
+
+		mockDB.AssertExpectations(t)
+	})
+
+	t.Run("success case: it should retrieve funds for Employee customers", func(t *testing.T) {
+		mockDB.EXPECT().GetFunds(ctx, CustomerTypeEmployee).Return([]models.Fund{funds[1]}, nil).Once()
+
+		result, err := client.GetFunds(ctx, CustomerTypeEmployee)
+		assert.NoError(t, err)
+		assert.Equal(t, []models.Fund{funds[1]}, result)
 
 		mockDB.AssertExpectations(t)
 	})
 
 	t.Run("failure case: db.GetFunds should error", func(t *testing.T) {
-		mockDB.EXPECT().GetFunds(ctx).Return(nil, errors.New("db error")).Once()
+		mockDB.EXPECT().GetFunds(ctx, CustomerTypeRetail).Return(nil, errors.New("db error")).Once()
 
-		result, err := client.GetFunds(ctx)
+		result, err := client.GetFunds(ctx, CustomerTypeRetail)
 		assert.ErrorContains(t, err, "db error")
 		assert.Nil(t, result)
 

@@ -75,7 +75,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetFunds       func(childComplexity int) int
+		GetFunds       func(childComplexity int, customerType model.CustomerType) int
 		GetInvestments func(childComplexity int, customerID string, limit int, cursor *string) int
 	}
 }
@@ -84,7 +84,7 @@ type MutationResolver interface {
 	Invest(ctx context.Context, input model.InvestmentInput) (*model.Investment, error)
 }
 type QueryResolver interface {
-	GetFunds(ctx context.Context) (*model.FundList, error)
+	GetFunds(ctx context.Context, customerType model.CustomerType) (*model.FundList, error)
 	GetInvestments(ctx context.Context, customerID string, limit int, cursor *string) (*model.InvestmentList, error)
 }
 
@@ -201,7 +201,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetFunds(childComplexity), true
+		args, err := ec.field_Query_getFunds_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetFunds(childComplexity, args["customerType"].(model.CustomerType)), true
 
 	case "Query.getInvestments":
 		if e.complexity.Query.GetInvestments == nil {
@@ -393,6 +398,34 @@ func (ec *executionContext) field_Query___type_argsName(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_getFunds_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_getFunds_argsCustomerType(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["customerType"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_getFunds_argsCustomerType(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.CustomerType, error) {
+	if _, ok := rawArgs["customerType"]; !ok {
+		var zeroVal model.CustomerType
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("customerType"))
+	if tmp, ok := rawArgs["customerType"]; ok {
+		return ec.unmarshalNCustomerType2githubᚗcomᚋJakeHumphriesᚋinvestmentᚑserviceᚋgraphᚋmodelᚐCustomerType(ctx, tmp)
+	}
+
+	var zeroVal model.CustomerType
 	return zeroVal, nil
 }
 
@@ -1180,7 +1213,7 @@ func (ec *executionContext) _Query_getFunds(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetFunds(rctx)
+		return ec.resolvers.Query().GetFunds(rctx, fc.Args["customerType"].(model.CustomerType))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1197,7 +1230,7 @@ func (ec *executionContext) _Query_getFunds(ctx context.Context, field graphql.C
 	return ec.marshalNFundList2ᚖgithubᚗcomᚋJakeHumphriesᚋinvestmentᚑserviceᚋgraphᚋmodelᚐFundList(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getFunds(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getFunds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1210,6 +1243,17 @@ func (ec *executionContext) fieldContext_Query_getFunds(_ context.Context, field
 			}
 			return nil, fmt.Errorf("no field named %q was found under type FundList", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getFunds_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }

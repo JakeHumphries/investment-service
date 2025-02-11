@@ -8,17 +8,14 @@
 	"item": [
 		{
 			"name": "Invest",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "graphql",
 					"graphql": {
 						"query": "mutation Invest($input: InvestmentInput!) {\n  invest(input: $input) {\n    id\n    amount\n    createdAt\n    fund {\n      id\n      name\n      category\n    }\n  }\n}\n",
-						"variables": "{\n  \"input\": {\n    \"customerID\": \"customer-123\",\n    \"fundID\": \"fund-456\",\n    \"amount\": 25000,\n    \"customerType\": \"RETAIL\"\n  }\n}\n"
+						"variables": "{\n  \"input\": {\n    \"customerId\": \"0e0a6e4c-1063-48f5-acae-14e36eeb531c\",\n    \"fundId\": \"65d8a13c-9bdd-4296-a707-55d424f134a3\",\n    \"amount\": 4,\n    \"customerType\": \"RETAIL\"\n  }\n}\n"
 					}
 				},
 				"url": {
@@ -37,17 +34,14 @@
 		},
 		{
 			"name": "GetFunds",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "graphql",
 					"graphql": {
-						"query": "mutation Invest($input: InvestmentInput!) {\n  invest(input: $input) {\n    id\n    amount\n    createdAt\n    fund {\n      id\n      name\n      category\n    }\n  }\n}\n",
-						"variables": "{\n  \"input\": {\n    \"customerID\": \"customer-123\",\n    \"fundID\": \"fund-456\",\n    \"amount\": 25000,\n    \"customerType\": \"RETAIL\"\n  }\n}\n"
+						"query": "query GetFunds($customerType: CustomerType!) {\n  getFunds(customerType: $customerType) {\n    funds {\n      id\n      name\n      category\n      createdAt\n    }\n  }\n}\n",
+						"variables": "{\n  \"customerType\":\"RETAIL\"\n}"
 					}
 				},
 				"url": {
@@ -66,17 +60,14 @@
 		},
 		{
 			"name": "GetInvestments",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "graphql",
 					"graphql": {
-						"query": "query GetInvestments($customerID: String!, $limit: Int!, $cursor: String) {\n  getInvestments(customerID: $customerID, limit: $limit, cursor: $cursor) {\n    investments {\n      id\n      amount\n      createdAt\n      fund {\n        id\n        name\n        category\n      }\n    }\n    nextCursor\n  }\n}",
-						"variables": "{\n  \"customerID\": \"customer-123\",\n  \"limit\": 10,\n  \"cursor\": null\n}"
+						"query": "query GetInvestments($customerId: ID!, $limit: Int!, $cursor: String) {\n  getInvestments(customerId: $customerId, limit: $limit, cursor: $cursor) {\n    investments {\n      id\n      amount\n      createdAt\n      fund {\n        id\n        name\n        category\n      }\n    }\n    nextCursor\n  }\n}",
+						"variables": "{\n  \"customerId\": \"0e0a6e4c-1063-48f5-acae-14e36eeb531c\",\n  \"limit\": 2,\n  \"cursor\": null\n}"
 					}
 				},
 				"url": {

@@ -95,6 +95,7 @@ Equities Fund.
 - Add better fund information (very basic right now)
 - Implement a cancel investment / withdraw endpoint
 - Validate investment inputs when createInvestment is called
+- Allow filters (like customer_type) when getting investments
 - Implement better errors returning from graphQL requests (making sure we dont leak implementation details)
 - Implement tests across the board (currently only business logic package has been covered)
 - Implement integration tests (spin up a database, make a GraphQL call)

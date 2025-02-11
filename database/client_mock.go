@@ -140,9 +140,9 @@ func (_c *MockClient_GetFundByID_Call) RunAndReturn(run func(context.Context, st
 	return _c
 }
 
-// GetFunds provides a mock function with given fields: ctx
-func (_m *MockClient) GetFunds(ctx context.Context) ([]models.Fund, error) {
-	ret := _m.Called(ctx)
+// GetFunds provides a mock function with given fields: ctx, customerType
+func (_m *MockClient) GetFunds(ctx context.Context, customerType string) ([]models.Fund, error) {
+	ret := _m.Called(ctx, customerType)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFunds")
@@ -150,19 +150,19 @@ func (_m *MockClient) GetFunds(ctx context.Context) ([]models.Fund, error) {
 
 	var r0 []models.Fund
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]models.Fund, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]models.Fund, error)); ok {
+		return rf(ctx, customerType)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []models.Fund); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) []models.Fund); ok {
+		r0 = rf(ctx, customerType)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.Fund)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, customerType)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -177,13 +177,14 @@ type MockClient_GetFunds_Call struct {
 
 // GetFunds is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockClient_Expecter) GetFunds(ctx interface{}) *MockClient_GetFunds_Call {
-	return &MockClient_GetFunds_Call{Call: _e.mock.On("GetFunds", ctx)}
+//   - customerType string
+func (_e *MockClient_Expecter) GetFunds(ctx interface{}, customerType interface{}) *MockClient_GetFunds_Call {
+	return &MockClient_GetFunds_Call{Call: _e.mock.On("GetFunds", ctx, customerType)}
 }
 
-func (_c *MockClient_GetFunds_Call) Run(run func(ctx context.Context)) *MockClient_GetFunds_Call {
+func (_c *MockClient_GetFunds_Call) Run(run func(ctx context.Context, customerType string)) *MockClient_GetFunds_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -193,7 +194,7 @@ func (_c *MockClient_GetFunds_Call) Return(_a0 []models.Fund, _a1 error) *MockCl
 	return _c
 }
 
-func (_c *MockClient_GetFunds_Call) RunAndReturn(run func(context.Context) ([]models.Fund, error)) *MockClient_GetFunds_Call {
+func (_c *MockClient_GetFunds_Call) RunAndReturn(run func(context.Context, string) ([]models.Fund, error)) *MockClient_GetFunds_Call {
 	_c.Call.Return(run)
 	return _c
 }

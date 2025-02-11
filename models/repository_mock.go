@@ -139,9 +139,9 @@ func (_c *MockRepository_GetFundByID_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// GetFunds provides a mock function with given fields: ctx
-func (_m *MockRepository) GetFunds(ctx context.Context) ([]Fund, error) {
-	ret := _m.Called(ctx)
+// GetFunds provides a mock function with given fields: ctx, customerType
+func (_m *MockRepository) GetFunds(ctx context.Context, customerType string) ([]Fund, error) {
+	ret := _m.Called(ctx, customerType)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFunds")
@@ -149,19 +149,19 @@ func (_m *MockRepository) GetFunds(ctx context.Context) ([]Fund, error) {
 
 	var r0 []Fund
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]Fund, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]Fund, error)); ok {
+		return rf(ctx, customerType)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []Fund); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) []Fund); ok {
+		r0 = rf(ctx, customerType)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]Fund)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, customerType)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -176,13 +176,14 @@ type MockRepository_GetFunds_Call struct {
 
 // GetFunds is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockRepository_Expecter) GetFunds(ctx interface{}) *MockRepository_GetFunds_Call {
-	return &MockRepository_GetFunds_Call{Call: _e.mock.On("GetFunds", ctx)}
+//   - customerType string
+func (_e *MockRepository_Expecter) GetFunds(ctx interface{}, customerType interface{}) *MockRepository_GetFunds_Call {
+	return &MockRepository_GetFunds_Call{Call: _e.mock.On("GetFunds", ctx, customerType)}
 }
 
-func (_c *MockRepository_GetFunds_Call) Run(run func(ctx context.Context)) *MockRepository_GetFunds_Call {
+func (_c *MockRepository_GetFunds_Call) Run(run func(ctx context.Context, customerType string)) *MockRepository_GetFunds_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -192,7 +193,7 @@ func (_c *MockRepository_GetFunds_Call) Return(_a0 []Fund, _a1 error) *MockRepos
 	return _c
 }
 
-func (_c *MockRepository_GetFunds_Call) RunAndReturn(run func(context.Context) ([]Fund, error)) *MockRepository_GetFunds_Call {
+func (_c *MockRepository_GetFunds_Call) RunAndReturn(run func(context.Context, string) ([]Fund, error)) *MockRepository_GetFunds_Call {
 	_c.Call.Return(run)
 	return _c
 }
