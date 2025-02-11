@@ -79,7 +79,7 @@ Equities Fund.
 - **Use a microservice style architecture with domain driven elements** - although only one service, we are using microservice principles (only handles investments/single responsibility, independent database storage, API driven, and doesnt store session state etc)
 - **Use GraphQL over REST** - Service is likely going to be used by a front end that might need flexible queries, we are working with relational data and this gives us the chance to build on the API is a more scalable fashion.
 - **Use Postgres** - well suited for the data we are working with (relational), we could use any relational DB but i have opted for postgres.
-- **Dont use a ORM** - lots of overhead and using SQL queries allows us to take a more performant, fine grained approach. This does come at a tradeoff for readability
+- **Dont use an ORM** - lots of overhead and using SQL queries allows us to take a more performant, fine grained approach. This does come at a tradeoff for readability
 - **Dont use internal package** - Given this is a self contained API (not a library), there is no risk of accidental imports by external projects, so to keep it simple i have decided not to use an internal package (although it is idiomatic to use one).
 - **DDD approach** - use investment module to encapsulate business logic. We could extend this to have more domain related modules in the future
 - **Seperate database from investment (domain) module** - although with DDD the database could be considered part of the investment domain, i have decided to seperate them. This leans into better seperation of concerns and makes our database module reusable across domain modules.
