@@ -1,3 +1,4 @@
+// Package models holds the struct definitions for the service
 package models
 
 // Fund represents a financial fund available for investment.

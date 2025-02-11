@@ -1,3 +1,4 @@
+// Package investment holds all the business logic and rules relating to investments
 package investment
 
 import (
@@ -48,12 +49,12 @@ func (c *Client) CreateInvestment(ctx context.Context, investment models.Investm
 		return nil, fmt.Errorf("failed to get fund: %w", err)
 	}
 
-	if strings.ToLower(customerType) != CustomerTypeRetail && strings.ToLower(customerType) != CustomerTypeEmployee {
+	if !strings.EqualFold(customerType, CustomerTypeRetail) && !strings.EqualFold(customerType, CustomerTypeEmployee) {
 		return nil, fmt.Errorf("invalid customer type: %s", customerType)
 	}
 
-	if strings.ToLower(fund.CustomerType) != strings.ToLower(customerType) {
-		return nil, fmt.Errorf("%s customers can only invest in %s funds", customerType, fund.CustomerType)
+	if !strings.EqualFold(fund.CustomerType, customerType) {
+		return nil, fmt.Errorf("%s customers cannot invest in %s funds", customerType, fund.CustomerType)
 	}
 
 	switch strings.ToLower(customerType) {

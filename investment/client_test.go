@@ -52,7 +52,7 @@ func TestCreateInvestment(t *testing.T) {
 		mockDB.EXPECT().GetFundByID(ctx, validInvestment.FundID).Return(invalidFund, nil).Once()
 
 		result, err := client.CreateInvestment(ctx, validInvestment, CustomerTypeRetail)
-		assert.ErrorContains(t, err, "retail customers can only invest in employee funds")
+		assert.ErrorContains(t, err, "retail customers cannot invest in employee funds")
 		assert.Nil(t, result)
 
 		mockDB.AssertExpectations(t)

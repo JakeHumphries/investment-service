@@ -22,10 +22,10 @@ type HTTPServer interface {
 
 // Service holds configurations and set up needed to run the service
 type Service struct {
-	config      config.Config
-	stopChannel chan bool
-	httpServer  HTTPServer
-	logger      *zap.Logger
+	config           config.Config
+	stopChannel      chan bool
+	httpServer       HTTPServer
+	logger           *zap.Logger
 	investmentClient investment.ClientInterface
 }
 
@@ -55,7 +55,7 @@ func NewService(ctx context.Context) (*Service, error) {
 
 	s.httpServer = &http.Server{
 		Handler: r,
-		Addr: fmt.Sprintf(":%d", cfg.Port),
+		Addr:    fmt.Sprintf(":%d", cfg.Port),
 	}
 
 	return s, nil

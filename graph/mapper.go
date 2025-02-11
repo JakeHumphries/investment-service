@@ -1,3 +1,4 @@
+// Package graph holds the setup and handlers for the graphQL API
 package graph
 
 import (
